@@ -2,10 +2,10 @@ import { model, property, Entity } from "@loopback/repository";
 import { getDiffieHellman } from "crypto";
 
 @model({
-  name: "registration"
+  name: "user"
 })
 
-export class Registration extends Entity {
+export class User extends Entity {
 
   @property({
     type: "number",
@@ -23,6 +23,10 @@ export class Registration extends Entity {
   })
   registeredEmail: string;
 
+  @property({
+    type: "string"
+  })
+  password: string;
 
   getId() {
     return this.id;

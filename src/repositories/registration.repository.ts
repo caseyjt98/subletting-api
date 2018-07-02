@@ -1,12 +1,12 @@
 import { DefaultCrudRepository } from '@loopback/repository';
 import { inject } from '@loopback/core';
 import { DataSource } from 'loopback-datasource-juggler';
-import { Registration } from '../models/registration';
+import { User } from '../models/user';
 
-export class RegistrationRepository extends DefaultCrudRepository<Registration, typeof Registration.prototype.id>
+export class RegistrationRepository extends DefaultCrudRepository<User, typeof User.prototype.id>
 
 {
   constructor(@inject('datasources.db') protected datasource: DataSource) {
-    super(Registration, datasource);
+    super(User, datasource);
   }
 }
