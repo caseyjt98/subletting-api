@@ -35,6 +35,7 @@ export class LoginController {
           { password: user.password }
         ],
       },
-    });
+    }) as User;
   }
+
 }
