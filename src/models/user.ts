@@ -16,15 +16,22 @@ export class User extends Entity {
   @property({
     type: "string"
   })
-  name: string;
+  firstName: string;
 
   @property({
     type: "string"
   })
+  lastName: string;
+
+  @property({
+    type: "string",
+    required: true,
+  })
   registeredEmail: string;
 
   @property({
-    type: "string"
+    type: "string",
+    required: true,
   })
   password: string;
 
