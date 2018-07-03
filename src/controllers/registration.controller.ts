@@ -15,48 +15,30 @@ import { UserRepository } from "../repositories/user.repository";
 
 export class RegistrationController {
   constructor( /** @repository decorate injects an instance of our repository whenever a request is being handled */
-    @repository(UserRepository.name) private registrationRepo: UserRepository,
+    @repository(UserRepository) protected userRepo: UserRepository,
   ) { } /** a new instance of model is created with each request */
 
 
   /** handler functions  */
-  @post("/registration")      /** creates metadata for the rest api so it can redirect requests */
+  @post("/registration")      // creates metadata for the rest api so it can redirect requests
   async registerNewUser(
-    @requestBody() user: User   /** associates the API with the body of the request to validate its format */
+    @requestBody() user: User   // associates the API with the body of the request to validate its format
   ): Promise<User> {
-    let newUser = await this.registrationRepo.create(user); /** create new instance of model and save to database */
-    return newUser;                                          /** create function is provided by our repository */
+    // check that required fields are supplied
+    if (!user.email || !user.password) {
+      throw new HttpErrors.BadRequest('missing data');
+    }
+
+    // check that user doesn't already exist
+    let userExists: boolean = !!(await this.userRepo.count({ email: user.email }));
+    if (userExists) {
+      throw new HttpErrors.BadRequest('user already exists');
+    }
+
+    // else
+    let newUser = await this.userRepo.create(user); //create new instance of model and save to database
+    return newUser;                                          // create function is provided by our repository
 
   }
-
-  @get("/users")
-  async getAllUsers(): Promise<Array<User>> {
-    var users = new Array<User>();
-    return await this.registrationRepo.find();  /** find all instances of the model that match filter parameter */
-  }
-
-  @get('/users/{id}')
-  async findUserById(@param.path.number('id') id: number): Promise<User> {
-    return await this.registrationRepo.findById(id); /** find instance of model by id */
-  }
-
-  @post("/login")
-  async loginExistingUser(@param.path.number('id') id: number, @param.path.string('password') password: string): Promise<boolean> {
-
-    var currentUser = await this.registrationRepo.findById(id);
-    if (currentUser.password == password)
-      return true;
-
-    throw new HttpErrors.NotFound("Sorry, user not found");
-  }
-
 
 }
-
-
-
-
-
-
-
-
