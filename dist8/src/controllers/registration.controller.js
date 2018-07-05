@@ -1,4 +1,6 @@
 "use strict";
+/** controllers handle the request- response cycles of the API, using @post, @get, etc requests */
+/** decorators set up the routing as well as the expected params of incoming requests */
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -15,48 +17,42 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const rest_1 = require("@loopback/rest");
 const user_1 = require("../models/user");
 const repository_1 = require("@loopback/repository");
-const registration_repository_1 = require("../repositories/registration.repository");
+const user_repository_1 = require("../repositories/user.repository");
 // Uncomment these imports to begin using these cool features!
 // import {inject} from '@loopback/context';
 let RegistrationController = class RegistrationController {
-    constructor(registrationRepo) {
-        this.registrationRepo = registrationRepo;
-    }
-    async registerNewUser(user) {
-        let newUser = await this.registrationRepo.create(user); /** create new instance of model and save to database */
-        return newUser;
-    }
-    async getAllUsers() {
-        var users = new Array();
-        return await this.registrationRepo.find(); /** find all instances of the model that match filter parameter */
-    }
-    async findUserById(id) {
-        return await this.registrationRepo.findById(id); /** find instance of model by id */
+    constructor(/** @repository decorate injects an instance of our repository whenever a request is being handled */ userRepo) {
+        this.userRepo = userRepo;
+    } /** a new instance of model is created with each request */
+    /** handler functions  */
+    async registerNewUser(user // associates the API with the body of the request to validate its format
+    ) {
+        // check that required fields are supplied
+        if (!user.email || !user.password) {
+            throw new rest_1.HttpErrors.BadRequest('missing data');
+        }
+        // check that user doesn't already exist
+        let userExists = !!(await this.userRepo.count({ email: user.email }));
+        if (userExists) {
+            throw new rest_1.HttpErrors.BadRequest('user already exists');
+        }
+        // else
+        let newUser = await this.userRepo.create(user); //create new instance of model and save to database
+        return newUser; // create function is provided by our repository
     }
 };
 __decorate([
-    rest_1.post("/registration"),
+    rest_1.post("/registration") // creates metadata for the rest api so it can redirect requests
+    ,
     __param(0, rest_1.requestBody()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_1.User]),
+    __metadata("design:paramtypes", [user_1.User // associates the API with the body of the request to validate its format
+    ]),
     __metadata("design:returntype", Promise)
 ], RegistrationController.prototype, "registerNewUser", null);
-__decorate([
-    rest_1.get("/users"),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
-    __metadata("design:returntype", Promise)
-], RegistrationController.prototype, "getAllUsers", null);
-__decorate([
-    rest_1.get('/users/{id}'),
-    __param(0, rest_1.param.path.number('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Number]),
-    __metadata("design:returntype", Promise)
-], RegistrationController.prototype, "findUserById", null);
 RegistrationController = __decorate([
-    __param(0, repository_1.repository(registration_repository_1.RegistrationRepository.name)),
-    __metadata("design:paramtypes", [registration_repository_1.RegistrationRepository])
+    __param(0, repository_1.repository(user_repository_1.UserRepository)),
+    __metadata("design:paramtypes", [user_repository_1.UserRepository])
 ], RegistrationController);
 exports.RegistrationController = RegistrationController;
 //# sourceMappingURL=registration.controller.js.map

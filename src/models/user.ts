@@ -2,7 +2,7 @@ import { model, property, Entity } from "@loopback/repository";
 
 
 @model({
-  name: "user"
+  name: "user"    // maps to SQL table name, the table is called 'user'
 })
 
 export class User extends Entity {
@@ -34,6 +34,12 @@ export class User extends Entity {
     required: true,
   })
   password: string;
+
+  @property({
+    type: "number",
+    required: true
+  })
+  age: number;
 
   getId() {
     return this.id;

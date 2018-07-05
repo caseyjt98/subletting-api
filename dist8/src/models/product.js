@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const repository_1 = require("@loopback/repository");
-let User = class User extends repository_1.Entity {
+let Product = class Product extends repository_1.Entity {
     getId() {
         return this.id;
     }
@@ -21,37 +21,52 @@ __decorate([
         id: true
     }),
     __metadata("design:type", Number)
-], User.prototype, "id", void 0);
+], Product.prototype, "id", void 0);
 __decorate([
     repository_1.property({
-        type: "string"
+        type: "number",
+        required: true
     }),
-    __metadata("design:type", String)
-], User.prototype, "firstName", void 0);
-__decorate([
-    repository_1.property({
-        type: "string"
-    }),
-    __metadata("design:type", String)
-], User.prototype, "lastName", void 0);
+    __metadata("design:type", Number)
+], Product.prototype, "addressNumber", void 0);
 __decorate([
     repository_1.property({
         type: "string",
         required: true,
     }),
     __metadata("design:type", String)
-], User.prototype, "registeredEmail", void 0);
+], Product.prototype, "streetName", void 0);
 __decorate([
     repository_1.property({
         type: "string",
         required: true,
     }),
     __metadata("design:type", String)
-], User.prototype, "password", void 0);
-User = __decorate([
+], Product.prototype, "city", void 0);
+__decorate([
+    repository_1.property({
+        type: "number",
+        required: true,
+    }),
+    __metadata("design:type", Number)
+], Product.prototype, "zipCode", void 0);
+__decorate([
+    repository_1.property({
+        type: "number",
+        required: false,
+    }),
+    __metadata("design:type", Number)
+], Product.prototype, "apartmentNumber", void 0);
+__decorate([
+    repository_1.property({
+        type: "number"
+    }),
+    __metadata("design:type", Number)
+], Product.prototype, "subleaserId", void 0);
+Product = __decorate([
     repository_1.model({
-        name: "user" // maps to SQL table name, the table is called 'user'
+        name: "product"
     })
-], User);
-exports.User = User;
-//# sourceMappingURL=user.js.map
+], Product);
+exports.Product = Product;
+//# sourceMappingURL=product.js.map

@@ -22,10 +22,15 @@ class SublettingApiApplication extends boot_1.BootMixin(repository_1.RepositoryM
                 nested: true,
             },
         };
-        // Use below for an in-memory database
+        // Use below for an SQL database
         var dataSourceConfig = new repository_1.juggler.DataSource({
             name: "db",
-            connector: 'memory'
+            connector: 'loopback-connector-mysql',
+            host: 'localhost',
+            port: 3306,
+            user: 'root',
+            password: 'root',
+            database: 'subletting'
         });
         this.dataSource(dataSourceConfig);
     }

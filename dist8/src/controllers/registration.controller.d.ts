@@ -1,9 +1,8 @@
 import { User } from "../models/user";
-import { RegistrationRepository } from "../repositories/registration.repository";
+import { UserRepository } from "../repositories/user.repository";
 export declare class RegistrationController {
-    private registrationRepo;
-    constructor(registrationRepo: RegistrationRepository);
+    /** @repository decorate injects an instance of our repository whenever a request is being handled */ protected userRepo: UserRepository;
+    constructor(/** @repository decorate injects an instance of our repository whenever a request is being handled */ userRepo: UserRepository);
+    /** handler functions  */
     registerNewUser(user: User): Promise<User>;
-    getAllUsers(): Promise<Array<User>>;
-    findUserById(id: number): Promise<User>;
 }
