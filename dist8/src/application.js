@@ -29,7 +29,7 @@ class SublettingApiApplication extends boot_1.BootMixin(repository_1.RepositoryM
             host: 'localhost',
             port: 3306,
             user: 'root',
-            password: 'root',
+            password: '',
             database: 'subletting'
         });
         this.dataSource(dataSourceConfig);

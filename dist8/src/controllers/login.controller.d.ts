@@ -3,5 +3,8 @@ import { UserRepository } from "../repositories/user.repository";
 export declare class LoginController {
     protected userRepo: UserRepository;
     constructor(userRepo: UserRepository);
-    loginUser(user: User): Promise<User>;
+    verifyToken(jwt: string): string | object;
+    loginUser(user: User): Promise<{
+        token: string;
+    }>;
 }

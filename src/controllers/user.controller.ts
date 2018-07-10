@@ -2,6 +2,7 @@ import { repository } from '@loopback/repository';
 import { UserRepository } from '../repositories/user.repository';
 import { User } from '../models/user';
 import { HttpErrors, get, param } from '@loopback/rest';
+import { sign, verify } from 'jsonwebtoken';
 
 export class UserController {
   constructor(
@@ -26,5 +27,6 @@ export class UserController {
     }
     return await this.userRepo.findById(id);
   }
+
 
 }

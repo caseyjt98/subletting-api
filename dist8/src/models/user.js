@@ -27,20 +27,20 @@ __decorate([
         type: "string"
     }),
     __metadata("design:type", String)
-], User.prototype, "firstName", void 0);
+], User.prototype, "first_name", void 0);
 __decorate([
     repository_1.property({
         type: "string"
     }),
     __metadata("design:type", String)
-], User.prototype, "lastName", void 0);
+], User.prototype, "last_name", void 0);
 __decorate([
     repository_1.property({
         type: "string",
         required: true,
     }),
     __metadata("design:type", String)
-], User.prototype, "registeredEmail", void 0);
+], User.prototype, "email", void 0);
 __decorate([
     repository_1.property({
         type: "string",
@@ -48,6 +48,13 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
+__decorate([
+    repository_1.property({
+        type: "number",
+        required: true
+    }),
+    __metadata("design:type", Number)
+], User.prototype, "age", void 0);
 User = __decorate([
     repository_1.model({
         name: "user" // maps to SQL table name, the table is called 'user'
