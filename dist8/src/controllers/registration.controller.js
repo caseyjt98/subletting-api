@@ -18,14 +18,14 @@ const rest_1 = require("@loopback/rest");
 const user_1 = require("../models/user");
 const repository_1 = require("@loopback/repository");
 const user_repository_1 = require("../repositories/user.repository");
-// Uncomment these imports to begin using these cool features!
-// import {inject} from '@loopback/context';
+const jsonwebtoken_1 = require("jsonwebtoken");
 let RegistrationController = class RegistrationController {
     constructor(/** @repository decorate injects an instance of our repository whenever a request is being handled */ userRepo) {
         this.userRepo = userRepo;
     } /** a new instance of model is created with each request */
     /** handler functions  */
-    async registerNewUser(user // associates the API with the body of the request to validate its format
+    // create post request to register new user
+    async registerNewUser(user // tells swagger ui to reflect the properties of User model
     ) {
         // check that required fields are supplied
         if (!user.email || !user.password) {
@@ -36,17 +36,35 @@ let RegistrationController = class RegistrationController {
         if (userExists) {
             throw new rest_1.HttpErrors.BadRequest('user already exists');
         }
+        // hash the user's password before creating user
+        var bcrypt = require('bcryptjs');
+        var salt = bcrypt.genSaltSync(10);
+        var hash = bcrypt.hashSync(user.password, salt);
+        user.password = hash;
         // else
-        let newUser = await this.userRepo.create(user); //create new instance of model and save to database
-        return newUser; // create function is provided by our repository
+        let createdUser = await this.userRepo.create(user); // creates new instance of model and save to database
+        // once the user is verified, create a jwt token by signing
+        let jwt = jsonwebtoken_1.sign({
+            // param 1: payload to sign, contains information about the user
+            user: {
+                id: createdUser.id,
+                email: createdUser.email
+                // not password
+            }
+        }, "shh", {
+            issuer: "auth.ix.com",
+            audience: "ix.com"
+        });
+        return {
+            token: jwt // return jwt token in json format
+        };
     }
 };
 __decorate([
-    rest_1.post("/registration") // creates metadata for the rest api so it can redirect requests
-    ,
+    rest_1.post("/registration"),
     __param(0, rest_1.requestBody()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [user_1.User // associates the API with the body of the request to validate its format
+    __metadata("design:paramtypes", [user_1.User // tells swagger ui to reflect the properties of User model
     ]),
     __metadata("design:returntype", Promise)
 ], RegistrationController.prototype, "registerNewUser", null);

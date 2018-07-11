@@ -6,11 +6,8 @@ import { get, param, HttpErrors, post, requestBody } from "@loopback/rest";
 import { User } from "../models/user";
 import { repository } from "@loopback/repository";
 import { UserRepository } from "../repositories/user.repository";
-
-
-// Uncomment these imports to begin using these cool features!
-
-// import {inject} from '@loopback/context';
+import * as bcrypt from 'bcrypt';
+import { sign } from 'jsonwebtoken';
 
 
 export class RegistrationController {
@@ -20,10 +17,13 @@ export class RegistrationController {
 
 
   /** handler functions  */
-  @post("/registration")      // creates metadata for the rest api so it can redirect requests
+
+  // create post request to register new user
+  @post("/registration")
   async registerNewUser(
-    @requestBody() user: User   // associates the API with the body of the request to validate its format
-  ): Promise<User> {
+    @requestBody() user: User   // tells swagger ui to reflect the properties of User model
+  ) {
+
     // check that required fields are supplied
     if (!user.email || !user.password) {
       throw new HttpErrors.BadRequest('missing data');
@@ -35,10 +35,39 @@ export class RegistrationController {
       throw new HttpErrors.BadRequest('user already exists');
     }
 
-    // else
-    let newUser = await this.userRepo.create(user); //create new instance of model and save to database
-    return newUser;                                          // create function is provided by our repository
 
+    // hash the user's password before creating user
+    var bcrypt = require('bcryptjs');
+    var salt = bcrypt.genSaltSync(10);
+    var hash = bcrypt.hashSync(user.password, salt);
+
+    user.password = hash;
+
+
+    // else
+    let createdUser = await this.userRepo.create(user);      // creates new instance of model and save to database
+
+    // once the user is verified, create a jwt token by signing
+    let jwt = sign({
+      // param 1: payload to sign, contains information about the user
+      user: {
+        id: createdUser.id,
+        email: createdUser.email
+        // not password
+      }
+    },
+      "shh",
+      {
+        issuer: "auth.ix.com",
+        audience: "ix.com"
+      });
+
+    return {
+      token: jwt      // return jwt token in json format
+    };
   }
 
+  // now we can call npm start, manually register a user, and it will appear in our SQL database
 }
+
+

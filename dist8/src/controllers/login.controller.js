@@ -17,34 +17,21 @@ const user_1 = require("../models/user");
 const repository_1 = require("@loopback/repository");
 const user_repository_1 = require("../repositories/user.repository");
 const jsonwebtoken_1 = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 let LoginController = class LoginController {
     constructor(userRepo) {
         this.userRepo = userRepo;
     }
-    // we can pass in our jwt to functions and instantly have our user information
-    // but we dont want the password accessible
-    verifyToken(jwt) {
-        try {
-            // verify fnc takes the token, checks that it was generated with the right password (second param), and verifies
-            let payload = jsonwebtoken_1.verify(jwt, "shh"); // second param should match "shh" ( secret keys should match.. if its not, it will throw an error
-            return payload;
-        }
-        catch (err) {
-            throw new rest_1.HttpErrors.Unauthorized("Invalid Token");
-        }
-    }
-    // the user is authenticated and we can process...
-    // in order to login, you have to make a post request
+    // in order to login, make a post request
     async loginUser(user) {
         // Check that email and password are both supplied
         if (!user.email || !user.password) {
-            throw new rest_1.HttpErrors.Unauthorized('invalid credentials');
+            throw new rest_1.HttpErrors.Unauthorized('missing data');
         }
         // Check that email and password are valid
         let userExists = !!(await this.userRepo.count({
             and: [
                 { email: user.email },
-                { password: user.password },
             ],
         }));
         if (!userExists) {
@@ -54,31 +41,44 @@ let LoginController = class LoginController {
             where: {
                 and: [
                     { email: user.email },
-                    { password: user.password }
                 ],
             },
         });
+        if (!await bcrypt.compare(user.password, foundUser.password)) {
+            throw new rest_1.HttpErrors.Unauthorized("Incorrect password");
+        }
+        // once the user is verified, create a jwt token by signing
         let jwt = jsonwebtoken_1.sign({
+            // param 1: payload to sign, contains information about the user
             user: {
                 id: foundUser.id,
                 email: foundUser.email
             }
-        }, "shh", {
+        }, // param 2: secret key
+        "shh", 
+        // param 3: options for the signature
+        {
             issuer: "auth.ix.com",
             audience: "ix.com"
         });
         return {
-            token: jwt
+            token: jwt // return jwt token in json format
         };
     }
+    // we can pass in our jwt to functions and instantly have our user information
+    // but we dont want the password accessible
+    // pass in jwt to verify
+    verifyToken(jwt) {
+        try {
+            // verify fnc takes the token, checks that it was generated with the right secret key (second param), and verifies
+            let payload = jsonwebtoken_1.verify(jwt, "shh"); // second param should match "shh" ( secret keys should match.. )if its not, it will throw an error
+            return payload; // payload will contain the decoded token (aka the information about the user stored in the token)
+        }
+        catch (err) {
+            throw new rest_1.HttpErrors.Unauthorized("Invalid Token");
+        }
+    }
 };
-__decorate([
-    rest_1.get("/verify"),
-    __param(0, rest_1.param.query.string("jwt")),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], LoginController.prototype, "verifyToken", null);
 __decorate([
     rest_1.post('/login'),
     __param(0, rest_1.requestBody()),
@@ -86,10 +86,16 @@ __decorate([
     __metadata("design:paramtypes", [user_1.User]),
     __metadata("design:returntype", Promise)
 ], LoginController.prototype, "loginUser", null);
+__decorate([
+    rest_1.get("/verify"),
+    __param(0, rest_1.param.query.string("jwt")),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", void 0)
+], LoginController.prototype, "verifyToken", null);
 LoginController = __decorate([
     __param(0, repository_1.repository(user_repository_1.UserRepository)),
     __metadata("design:paramtypes", [user_repository_1.UserRepository])
 ], LoginController);
 exports.LoginController = LoginController;
-// decoding our token gives us the user, issuer, audience
 //# sourceMappingURL=login.controller.js.map
